@@ -18,6 +18,11 @@ export const templates = {
     description:
       'TanStack Query kept from an existing SPA: per-request QueryClient, prefetchQuery and dehydrate in loaders, a pending detail query streamed through useSuspenseQuery, HydrationBoundary on the client',
   },
+  cloudflare: {
+    branch: 'example/cloudflare',
+    description:
+      'The minimal app deployed to Cloudflare Workers: a Worker entry, Workers Static Assets, a KV binding read in a loader, wrangler preview and deploy',
+  },
   localization: {
     branch: 'example/localization',
     description:
