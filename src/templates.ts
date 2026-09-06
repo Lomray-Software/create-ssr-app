@@ -13,6 +13,11 @@ export const templates = {
     description:
       'Development through the managed CLI, production through an application-owned Fastify server with static assets, compression and Early Hints; dual export of the managed entry and a Fetch handler',
   },
+  'tanstack-query': {
+    branch: 'example/tanstack-query',
+    description:
+      'TanStack Query kept from an existing SPA: per-request QueryClient, prefetchQuery and dehydrate in loaders, a pending detail query streamed through useSuspenseQuery, HydrationBoundary on the client',
+  },
   localization: {
     branch: 'example/localization',
     description:

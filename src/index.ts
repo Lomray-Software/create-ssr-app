@@ -41,7 +41,7 @@ Usage:
   npx @lomray/create-ssr-app [directory] [options]
 
 Options:
-  -t, --template <name>       full | minimal | custom-server | localization (default: minimal)
+  -t, --template <name>       full | minimal | custom-server | tanstack-query | localization (default: minimal)
       --ref <branch|tag|sha>  Override the template branch with any template repository git ref
       --package-manager <pm> npm | pnpm | yarn | bun (detected from npm_config_user_agent; otherwise npm)
       --no-install           Skip installing dependencies

@@ -11,7 +11,7 @@
 </p>
 
 Create a React Router (Data mode) app with SSR and Vite SSR Boost from the official Lomray templates.
-Start with minimal SSR, the full reference app, a Fastify production server, or localization.
+Start with minimal SSR, the full reference app, a Fastify production server, TanStack Query, or localization.
 
 ## Usage
 
@@ -42,7 +42,7 @@ the CLI uses flags and defaults without prompting. Package manager selection fol
 | Argument / option          | Default                   | Description                                                                                                             |
 | -------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | `[directory]`              | `my-ssr-app`              | Destination directory.                                                                                                  |
-| `-t, --template <name>`    | `minimal`                 | `full`, `minimal`, `custom-server`, or `localization`.                                                                  |
+| `-t, --template <name>`    | `minimal`                 | `full`, `minimal`, `custom-server`, `tanstack-query`, or `localization`.                                                |
 | `--ref <branch\|tag\|sha>` | Template branch           | Advanced: use any git ref in the template repository, overriding the template mapping and skipping the template prompt. |
 | `--package-manager <name>` | Detected, otherwise `npm` | `npm`, `pnpm`, `yarn`, or `bun`.                                                                                        |
 | `--no-install`             | Install                   | Skip installation and print the install command in Next steps.                                                          |
@@ -62,12 +62,13 @@ These descriptions match the [template repository](https://github.com/Lomray-Sof
 See the [Vite SSR Boost documentation](https://lomray-software.github.io/vite-ssr-boost/) for development,
 SSR behavior, and deployment.
 
-| Template        | Branch                                                                                                 | What it shows                                                                                                                                                                                     |
-| --------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `full`          | [`prod`](https://github.com/Lomray-Software/vite-template/tree/prod)                                   | Streaming SSR, MobX, consistent Suspense, meta tags and route management                                                                                                                          |
-| `minimal`       | [`example/minimal`](https://github.com/Lomray-Software/vite-template/tree/example/minimal)             | Six runtime dependencies, loaders, a lazy route with CSS, redirect, client-only route and 404, plus the SPA-to-SSR file diff                                                                      |
-| `custom-server` | [`example/custom-server`](https://github.com/Lomray-Software/vite-template/tree/example/custom-server) | Development through the managed CLI, production through an application-owned Fastify server with static assets, compression and Early Hints; dual export of the managed entry and a Fetch handler |
-| `localization`  | [`example/localization`](https://github.com/Lomray-Software/vite-template/tree/example/localization)   | i18next with the language chosen on the server from the cookie or Accept-Language, transferred to the client before hydration, and a cookie-based switcher                                        |
+| Template         | Branch                                                                                                   | What it shows                                                                                                                                                                                        |
+| ---------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `full`           | [`prod`](https://github.com/Lomray-Software/vite-template/tree/prod)                                     | Streaming SSR, MobX, consistent Suspense, meta tags and route management                                                                                                                             |
+| `minimal`        | [`example/minimal`](https://github.com/Lomray-Software/vite-template/tree/example/minimal)               | Six runtime dependencies, loaders, a lazy route with CSS, redirect, client-only route and 404, plus the SPA-to-SSR file diff                                                                         |
+| `custom-server`  | [`example/custom-server`](https://github.com/Lomray-Software/vite-template/tree/example/custom-server)   | Development through the managed CLI, production through an application-owned Fastify server with static assets, compression and Early Hints; dual export of the managed entry and a Fetch handler    |
+| `tanstack-query` | [`example/tanstack-query`](https://github.com/Lomray-Software/vite-template/tree/example/tanstack-query) | TanStack Query kept from an existing SPA: per-request QueryClient, prefetchQuery and dehydrate in loaders, a pending detail query streamed through useSuspenseQuery, HydrationBoundary on the client |
+| `localization`   | [`example/localization`](https://github.com/Lomray-Software/vite-template/tree/example/localization)     | i18next with the language chosen on the server from the cookie or Accept-Language, transferred to the client before hydration, and a cookie-based switcher                                           |
 
 ## How it works
 

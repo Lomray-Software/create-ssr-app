@@ -249,7 +249,7 @@ describe('output and exit codes', () => {
 
     expect(await run(['--template', 'unknown'])).toBe(1);
     expect(error).toHaveBeenCalledExactlyOnceWith(
-      'Error: Unknown template "unknown"; choose full, minimal, custom-server, localization.',
+      'Error: Unknown template "unknown"; choose full, minimal, custom-server, tanstack-query, localization.',
     );
   });
 
