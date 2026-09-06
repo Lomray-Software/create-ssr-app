@@ -134,6 +134,10 @@ describe.skipIf(process.env.CREATE_SSR_APP_E2E !== '1')('GitHub templates', () =
         expect(manifest.dependencies).toHaveProperty('fastify');
       }
 
+      if (template === 'tanstack-query') {
+        expect(manifest.dependencies).toHaveProperty('@tanstack/react-query');
+      }
+
       if (template === 'localization') {
         expect(manifest.dependencies).toHaveProperty('i18next');
       }
