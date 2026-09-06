@@ -100,6 +100,8 @@ export const scaffold = async (
     await checkDestination(directory, options.force);
     await copyDirectory(staging, directory);
     await removeTemplateMetadata(directory, shouldUseGit);
+    // Restore only the generated workflow after clearing any old destination metadata.
+    await copyDirectory(join(staging, '.github'), join(directory, '.github'));
   } finally {
     await rm(temporary, { recursive: true, force: true });
   }

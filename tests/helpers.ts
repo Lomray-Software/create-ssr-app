@@ -2,11 +2,35 @@ import { execFileSync } from 'node:child_process';
 import { chmod, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { parse } from 'yaml';
+
+interface IFixtureOptions {
+  scripts?: Record<string, string>;
+  nodeVersion?: string;
+}
+
+interface ICiWorkflow {
+  name: string;
+  on: string[];
+  permissions: Record<string, string>;
+  jobs: {
+    check: {
+      'runs-on': string;
+      steps: { uses?: string; with?: Record<string, string>; run?: string }[];
+    };
+  };
+}
+
+export const readCiWorkflow = async (directory: string): Promise<ICiWorkflow> =>
+  parse(await readFile(join(directory, '.github', 'workflows', 'ci.yml'), 'utf8')) as ICiWorkflow;
 
 export const temporaryDirectory = (): Promise<string> =>
   mkdtemp(join(tmpdir(), 'create-ssr-test-'));
 
-export const writeFixture = async (directory: string): Promise<void> => {
+export const writeFixture = async (
+  directory: string,
+  { scripts, nodeVersion }: IFixtureOptions = {},
+): Promise<void> => {
   await mkdir(join(directory, '.github', 'workflows'), { recursive: true });
   await mkdir(join(directory, '.husky'), { recursive: true });
   await mkdir(join(directory, 'src'), { recursive: true });
@@ -20,11 +44,16 @@ export const writeFixture = async (directory: string): Promise<void> => {
     bugs: 'template',
     author: 'Template author',
     keywords: ['template'],
-    scripts: { prepare: 'husky', develop: 'vite', build: 'vite build' },
+    scripts: scripts ?? { prepare: 'husky', develop: 'vite', build: 'vite build' },
     dependencies: { react: '^19.0.0' },
   };
 
   await writeFile(join(directory, 'package.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+
+  if (nodeVersion !== undefined) {
+    await writeFile(join(directory, '.nvmrc'), `${nodeVersion}\n`);
+  }
+
   await writeFile(
     join(directory, 'package-lock.json'),
     '{"name":"template","lockfileVersion":3}\n',
@@ -32,6 +61,8 @@ export const writeFixture = async (directory: string): Promise<void> => {
 
   for (const file of [
     '.github/workflows/ci.yml',
+    '.github/workflows/release.yml',
+    '.github/CODEOWNERS',
     '.husky/pre-commit',
     'renovate.json',
     'CHANGELOG.md',

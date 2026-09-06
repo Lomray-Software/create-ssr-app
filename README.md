@@ -10,7 +10,7 @@
   <a href="https://nodejs.org/"><img src="https://img.shields.io/node/v/@lomray/create-ssr-app" alt="Node.js version" /></a>
 </p>
 
-Create a React application with Vite SSR Boost from the official Lomray templates.  
+Create a React Router (Data mode) app with SSR and Vite SSR Boost from the official Lomray templates.
 Start with minimal SSR, the full reference app, a Fastify production server, or localization.
 
 ## Usage
@@ -81,6 +81,10 @@ SSR behavior, and deployment.
 3. Removes `.github/`, `renovate.json`, `CHANGELOG.md`, `LICENSE`, and `SECURITY.md` from the template.
    When git initialization is skipped, it also removes `.husky/` and `scripts.prepare`.
    It keeps `vercel.json`, `amplify.yml`, `Dockerfile`, and the other project files.
+   It generates a fresh `.github/workflows/ci.yml` for pushes and pull requests, including with
+   `--no-git`. CI uses the template's `.nvmrc` or Node 22, installs with `npm ci --ignore-scripts`,
+   and runs the available `lint:check`, `ts:check`, `style:check`, `build -- --throw-warnings`,
+   `size:check`, and `smoke` scripts in that order. It has no deployment jobs or secrets.
 4. Sets `package.json`'s name to a valid npm name derived from the destination basename and its
    version to `0.1.0`. It deletes `description`, `repository`, `homepage`, `bugs`, `author`, and
    `keywords`, preserving `private` and other fields. The scaffolder does not edit lockfiles.
