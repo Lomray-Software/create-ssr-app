@@ -138,6 +138,10 @@ describe.skipIf(process.env.CREATE_SSR_APP_E2E !== '1')('GitHub templates', () =
         expect(manifest.dependencies).toHaveProperty('@tanstack/react-query');
       }
 
+      if (template === 'cloudflare') {
+        expect(manifest.scripts).toHaveProperty('preview:worker');
+      }
+
       if (template === 'localization') {
         expect(manifest.dependencies).toHaveProperty('i18next');
       }
