@@ -3,7 +3,7 @@ import { readFile, readdir, rm, stat } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { templates } from '../src/templates.js';
-import { temporaryDirectory } from './helpers.js';
+import { readCiWorkflow, temporaryDirectory } from './helpers.js';
 
 const run = async (command: string, args: string[], cwd: string): Promise<void> => {
   await new Promise<void>((resolveRun, reject) => {
@@ -75,7 +75,6 @@ describe.skipIf(process.env.CREATE_SSR_APP_E2E !== '1')('GitHub templates', () =
       expect(manifest.scripts.prepare).toBeUndefined();
 
       for (const file of [
-        '.github',
         '.husky',
         '.git',
         'renovate.json',
@@ -87,6 +86,42 @@ describe.skipIf(process.env.CREATE_SSR_APP_E2E !== '1')('GitHub templates', () =
       }
 
       expect(manifest.scripts.develop).toBeTruthy();
+      expect(await readdir(join(target, '.github'))).toEqual(['workflows']);
+      expect(await readdir(join(target, '.github', 'workflows'))).toEqual(['ci.yml']);
+      const workflow = await readCiWorkflow(target);
+      const commands = workflow.jobs.check.steps.flatMap((step) => (step.run ? [step.run] : []));
+
+      expect(workflow.on).toEqual(['push', 'pull_request']);
+      expect(commands).toContain('npm ci --ignore-scripts');
+
+      for (const command of commands) {
+        for (const [, script] of command.matchAll(/\bnpm run ([\w:-]+)/gu)) {
+          expect(Object.hasOwn(manifest.scripts, script ?? '')).toBe(true);
+        }
+      }
+
+      for (const script of [
+        'lint:check',
+        'ts:check',
+        'style:check',
+        'build',
+        'size:check',
+        'smoke',
+      ]) {
+        expect(
+          commands.includes(`npm run ${script}${script === 'build' ? ' -- --throw-warnings' : ''}`),
+        ).toBe(Object.hasOwn(manifest.scripts, script));
+      }
+
+      const hasNvmrc = files.includes('.nvmrc');
+
+      expect(
+        workflow.jobs.check.steps.find((step) => step.uses?.startsWith('actions/setup-node@'))
+          ?.with,
+      ).toEqual({
+        ...(hasNvmrc ? { 'node-version-file': '.nvmrc' } : { 'node-version': '22' }),
+        cache: 'npm',
+      });
 
       if (template === 'minimal') {
         expect(Object.keys(manifest.dependencies)).toHaveLength(6);

@@ -2,7 +2,7 @@ import { readFile, readdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { packageName, postProcess, rewritePackage } from '../src/project.js';
-import { temporaryDirectory, writeFixture } from './helpers.js';
+import { readCiWorkflow, temporaryDirectory, writeFixture } from './helpers.js';
 
 const temporary: string[] = [];
 
@@ -72,9 +72,17 @@ describe('post-processing', () => {
       await postProcess(directory, 'My App', git);
       const files = await readdir(directory);
 
-      for (const file of ['.github', 'renovate.json', 'CHANGELOG.md', 'LICENSE', 'SECURITY.md']) {
+      for (const file of ['renovate.json', 'CHANGELOG.md', 'LICENSE', 'SECURITY.md']) {
         expect(files).not.toContain(file);
       }
+
+      expect(await readdir(join(directory, '.github'))).toEqual(['workflows']);
+      expect(await readdir(join(directory, '.github', 'workflows'))).toEqual(['ci.yml']);
+      const workflow = await readCiWorkflow(directory);
+
+      expect(workflow.jobs.check.steps).toContainEqual({
+        run: 'npm run build -- --throw-warnings',
+      });
 
       for (const file of ['vercel.json', 'amplify.yml', 'Dockerfile', 'README.md', 'src']) {
         expect(files).toContain(file);
@@ -92,6 +100,7 @@ describe('post-processing', () => {
       expect(Object.hasOwn(manifest.scripts, 'prepare')).toBe(git);
       expect(await readFile(join(directory, 'package-lock.json'))).toEqual(lockfile);
       await expect(postProcess(directory, 'My App', git)).resolves.toBeUndefined();
+      expect(await readCiWorkflow(directory)).toEqual(workflow);
     },
   );
 });

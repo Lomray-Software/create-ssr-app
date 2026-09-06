@@ -1,4 +1,4 @@
-import { spawnSync } from 'node:child_process';
+import { ChildProcess, spawn, spawnSync } from 'node:child_process';
 import { chmod, link, mkdir, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
 import { delimiter, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -7,7 +7,9 @@ import { shouldInitializeGit } from '../src/commands.js';
 import { colorize, run, scaffold } from '../src/index.js';
 import { parseArgs } from '../src/options.js';
 import { packageManagers } from '../src/package-manager.js';
-import { temporaryDirectory, writeFixture } from './helpers.js';
+import { readCiWorkflow, temporaryDirectory, writeFixture } from './helpers.js';
+
+vi.mock('node:child_process', { spy: true });
 
 const temporary: string[] = [];
 
@@ -43,7 +45,10 @@ describe('scaffolding', () => {
       await readFile(join(source, 'package-lock.json')),
     );
     expect(await readdir(source)).toContain('.github');
-    expect(await readdir(target)).not.toContain('.github');
+    expect(await readCiWorkflow(target)).toMatchObject({ name: 'CI' });
+    expect(await readFile(join(source, '.github', 'workflows', 'ci.yml'), 'utf8')).toBe(
+      'fixture: .github/workflows/ci.yml\n',
+    );
     expect(await readdir(target)).not.toContain('.git');
     expect(log.mock.calls.flat().join('\n')).toContain('npm ci');
   });
@@ -56,6 +61,7 @@ describe('scaffolding', () => {
     await writeFile(join(target, 'README.md'), 'old readme');
     await writeFile(join(target, 'LICENSE'), 'old template license');
     await mkdir(join(target, '.github'));
+    await writeFile(join(target, '.github', 'stale.yml'), 'old metadata');
     await mkdir(join(target, '.husky'));
     const { options } = parseArgs([target, '--no-install', '--no-git', '-y']);
     const fetchMock = vi.fn<typeof fetch>();
@@ -69,7 +75,9 @@ describe('scaffolding', () => {
       await readFile(join(source, 'README.md')),
     );
     expect(await readdir(target)).not.toContain('LICENSE');
-    expect(await readdir(target)).not.toContain('.github');
+    expect(await readdir(join(target, '.github'))).toEqual(['workflows']);
+    expect(await readdir(join(target, '.github', 'workflows'))).toEqual(['ci.yml']);
+    expect(await readCiWorkflow(target)).toMatchObject({ name: 'CI' });
     expect(await readdir(target)).not.toContain('.husky');
   });
 
@@ -156,21 +164,44 @@ describe('scaffolding', () => {
 });
 
 describe('git initialization', () => {
-  it('initializes main and makes the specified commit without requiring global identity or signing', async () => {
+  it('requests main and the specified commit without requiring global identity or signing', async () => {
     const { parent, source, target } = await fixture();
     const globalConfig = join(parent, 'gitconfig');
+    const spawnMock = vi.mocked(spawn).mockImplementation(() => {
+      const child = new ChildProcess();
+
+      queueMicrotask(() => child.emit('exit', 0));
+
+      return child;
+    });
 
     await writeFile(globalConfig, '[commit]\n\tgpgsign = true\n');
     vi.stubEnv('GIT_CONFIG_GLOBAL', globalConfig);
     vi.stubEnv('GIT_CONFIG_NOSYSTEM', '1');
     await scaffold(parseArgs([target, '--no-install', '-y']).options, vi.fn(), source);
-    const git = (...args: string[]): string =>
-      spawnSync('git', args, { cwd: target, encoding: 'utf8' }).stdout.trim();
-
-    expect(git('branch', '--show-current')).toBe('main');
-    expect(git('log', '-1', '--pretty=%B')).toBe('Initial commit from @lomray/create-ssr-app');
-    expect(git('status', '--short')).toBe('');
+    expect(spawnMock.mock.calls.map(([command, args]) => [command, args])).toEqual([
+      ['git', ['init', '--initial-branch=main']],
+      ['git', ['add', '--all']],
+      [
+        'git',
+        [
+          '-c',
+          'commit.gpgsign=false',
+          '-c',
+          `core.hooksPath=${process.platform === 'win32' ? 'NUL' : '/dev/null'}`,
+          '-c',
+          'user.name=create-ssr-app',
+          '-c',
+          'user.email=create-ssr-app@localhost',
+          'commit',
+          '-m',
+          'Initial commit from @lomray/create-ssr-app',
+        ],
+      ],
+    ]);
+    expect(spawnMock.mock.calls.every(([, , options]) => options?.cwd === target)).toBe(true);
     expect(await readdir(target)).toContain('.husky');
+    expect(await readCiWorkflow(target)).toMatchObject({ name: 'CI' });
   });
 
   it('skips initialization inside an existing repository and removes prepare', async () => {

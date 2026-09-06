@@ -1,5 +1,6 @@
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import { basename, join, resolve } from 'node:path';
+import { writeCiWorkflow } from './ci.js';
 import { UserError, errorCause } from './errors.js';
 
 export const packageName = (directory: string): string => {
@@ -65,6 +66,7 @@ export const postProcess = async (
 
   await writeFile(manifestPath, `${JSON.stringify(rewritten, null, 2)}\n`);
   await removeTemplateMetadata(directory, git);
+  await writeCiWorkflow(directory, rewritten);
 };
 
 export const removeTemplateMetadata = async (directory: string, git: boolean): Promise<void> => {

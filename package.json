@@ -1,7 +1,7 @@
 {
   "name": "@lomray/create-ssr-app",
   "version": "1.0.0",
-  "description": "Create a Lomray Vite SSR application from the official templates.",
+  "description": "Create a Vite + React Router (Data mode) app with SSR from the official Lomray templates",
   "type": "module",
   "bin": {
     "create-ssr-app": "bin/create-ssr-app.mjs"
@@ -30,6 +30,10 @@
     "vite",
     "ssr",
     "react",
+    "react-router",
+    "server-side-rendering",
+    "template",
+    "vite-ssr-boost",
     "scaffold",
     "create",
     "lomray"
@@ -58,6 +62,7 @@
     "semantic-release": "^25.0.9",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.69.0",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.0",
+    "yaml": "^2.9.0"
   }
 }
