@@ -3,8 +3,8 @@ name: Merge Dependabot updates
 # Runs from the default branch after "Check PR" succeeds, so the workflow definition cannot be changed by the update itself.
 on:
   workflow_run:
-    workflows: [ Check PR ]
-    types: [ completed ]
+    workflows: [Check PR]
+    types: [completed]
 
 permissions: {}
 
