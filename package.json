@@ -51,19 +51,24 @@
     "audit:check": "node scripts/audit.mjs"
   },
   "devDependencies": {
-    "@commitlint/cli": "^21.2.2",
-    "@commitlint/config-conventional": "^21.2.2",
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
     "@lomray/eslint-config": "^7.0.0",
     "@lomray/prettier-config": "^3.0.0",
-    "@types/node": "^22.20.1",
-    "eslint": "^10.10.0",
-    "globals": "^17.12.0",
+    "@types/node": "^22.20.6",
+    "eslint": "^10.15.0",
+    "globals": "^17.14.0",
     "husky": "^9.1.7",
-    "prettier": "^3.9.6",
+    "prettier": "^3.10.1",
     "semantic-release": "^25.0.9",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.69.0",
-    "vitest": "^5.0.0",
-    "yaml": "^2.9.0"
+    "typescript-eslint": "^8.74.0",
+    "vitest": "^5.1.1",
+    "yaml": "^2.9.1"
+  },
+  "overrides": {
+    "eslint-plugin-sonarjs": {
+      "minimatch": "^11.0.1"
+    }
   }
 }
