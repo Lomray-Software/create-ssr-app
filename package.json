@@ -47,7 +47,8 @@
     "test": "vitest run --exclude tests/e2e.test.ts",
     "test:e2e": "npm run build && vitest run tests/e2e.test.ts --reporter=verbose",
     "prepare": "husky",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "audit:check": "node scripts/audit.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",
